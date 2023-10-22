@@ -8,6 +8,7 @@ Connection::Connection(int socket)
 
 // public functions
 
+//send handed over message to client
 void Connection::sendMsg(std::string toSend)
 {
     int temp, bytesSent = 0;
@@ -48,6 +49,7 @@ void Connection::sendMsg(std::string toSend)
     }
 }
 
+//receive message from client
 std::string Connection::recvMsg()
 {
     int temp, bytesRecv = 0;

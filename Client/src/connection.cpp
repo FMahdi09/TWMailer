@@ -73,7 +73,7 @@ void Connection::sendMsg(std::string toSend)
     }
 }
 
-//receive and return (answer)message from server
+//receive (answer)message from server
 std::string Connection::recvMsg()
 {
     int temp, bytesRecv = 0;
