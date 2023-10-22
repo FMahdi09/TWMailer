@@ -13,9 +13,9 @@ class MessageInput
 
         // public methods
         std::string inputSend();
-        void inputList();
-        void inputRead();
-        void inputDel();
+        std::string inputList();
+        std::string inputRead();
+        std::string inputDel();
 
     private:
 

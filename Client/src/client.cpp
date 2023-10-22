@@ -39,5 +39,9 @@ void Client::start()
         {
             std::cerr << ex.what() << "\n";
         }
+        catch(std::exception const& ex)
+        {
+            std::cerr << ex.what() << "\n";
+        }
     }
 }

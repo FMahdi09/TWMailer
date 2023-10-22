@@ -16,24 +16,23 @@ std::string CommandCheck::check(std::string command)
     }
     else if (command == "LIST")
     {
-        std::cout << "2 " << command << std::endl;
+        return messageInput->inputList();
     }
     else if (command == "READ")
     {
-        std::cout << "3 " << command << std::endl;
+        return messageInput->inputRead();
     }
     else if (command == "DEL")
     {
-        std::cout << "4 " << command << std::endl;
+        return messageInput->inputDel();
     }
     else if (command == "QUIT")
     {
-        std::cout << "5 " << command << std::endl;
         return command;
     }
     else
     {
         throw std::invalid_argument("no known argument");
     }
-    return "?";
+    throw std::logic_error("unknown error");
 }
