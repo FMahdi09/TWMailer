@@ -124,7 +124,12 @@ std::string Logic::read(std::stringstream& request)
        msgNumber == "")
         return "ERR\n";
 
-    return "OK\n" + getBody(headDir + "/" + username + "/" + msgNumber);
+    std::string response = getBody(headDir + "/" + username + "/" + msgNumber);
+
+    if(response == "ERR\n")
+        return response;
+
+    return "OK\n" + response;
 }
 
 std::string Logic::del(std::stringstream& request)
