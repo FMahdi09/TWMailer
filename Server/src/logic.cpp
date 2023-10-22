@@ -28,7 +28,7 @@ std::string Logic::getResponse(std::string request)
         return list(requestStream);
 
     if(method == "READ")
-        return send(requestStream);
+        return read(requestStream);
 
     if(method == "DEL")
         return send(requestStream);
@@ -50,7 +50,13 @@ std::string Logic::send(std::stringstream& request)
        !std::getline(request, reciever) ||
        !std::getline(request, subject) ||
        !std::getline(request, curLine))
-        return "ERR\n";        
+        return "ERR\n";
+
+    // check if values are valid
+    if(sender == "" ||
+       reciever == "" ||
+       subject == "")
+        return "ERR\n";
 
     // read msg body
     while(curLine != ".")
@@ -81,6 +87,10 @@ std::string Logic::list(std::stringstream& request)
     if(!std::getline(request, username))
         return "ERR\n";
 
+    // check if values are valid
+    if(username == "")
+        return "ERR\n";
+
     userpath = headDir + "/" + username;
 
     // return "0\n" if user unknown
@@ -92,7 +102,7 @@ std::string Logic::list(std::stringstream& request)
     {
         if((filename = fs::path(dir_entry).filename()) != "index")
         {
-            msg.append(filename + "\n");
+            msg.append(filename + "-" + getSubject(userpath + "/" + filename) + "\n");
             ++fileCount;
         }
     }
@@ -100,11 +110,28 @@ std::string Logic::list(std::stringstream& request)
     return std::to_string(fileCount) + "\n" + msg;
 }
 
+std::string Logic::read(std::stringstream& request)
+{
+    std::string username, msgNumber;
+
+    // read values from request
+    if(!std::getline(request, username) ||
+       !std::getline(request, msgNumber))
+        return "ERR\n";
+
+    // check if values are valid
+    if(username == "" ||
+       msgNumber == "")
+        return "ERR\n";
+
+    return getBody(headDir + "/" + username + "/" + msgNumber);
+}
+
 void Logic::createNewUser(std::string username)
 {
     fs::create_directory(headDir + "/" + username);
 
-    std::ofstream indexFile("index");
+    std::ofstream indexFile(headDir + "/" + username + "/index");
     indexFile << "1";
     indexFile.close();
 }
@@ -125,9 +152,43 @@ void Logic::createNewMessage(std::string username, std::string subject, std::str
     outIndexFile.close();
 
     // create file
-    std::ofstream newMsgFile(userpath + "/" + std::to_string(index) + "-" + subject);
+    std::ofstream newMsgFile(userpath + "/" + std::to_string(index));
 
     // write message to file
+    newMsgFile << subject << "\n";
     newMsgFile << msg;
     newMsgFile.close();
+}
+
+std::string Logic::getSubject(std::string filepath)
+{
+    std::ifstream file(filepath);
+
+    if(!file.is_open())
+        return "ERR\n";
+
+    std::string subject;
+
+    std::getline(file, subject);
+
+    file.close();
+    return subject;
+}
+
+std::string Logic::getBody(std::string filepath)
+{
+    std::ifstream file(filepath);
+    std::string temp;
+    std::stringstream msg;
+
+    if(!file.is_open())
+        return "ERR\n";
+
+    // skip first line (subject)
+    std::getline(file, temp);
+
+    // read rest of file
+    msg << file.rdbuf();
+    file.close();
+    return msg.str();
 }
