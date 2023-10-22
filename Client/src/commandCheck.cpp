@@ -29,6 +29,7 @@ std::string CommandCheck::check(std::string command)
     else if (command == "QUIT")
     {
         std::cout << "5 " << command << std::endl;
+        return command;
     }
     else
     {
