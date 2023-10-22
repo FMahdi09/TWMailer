@@ -81,6 +81,7 @@ std::string Logic::send(std::stringstream& request)
 std::string Logic::list(std::stringstream& request)
 {
     std::string username, userpath, filename, msg;
+    std::set<std::string> sorted_by_name;
     int fileCount = 0;
 
     // read values from request
@@ -102,12 +103,17 @@ std::string Logic::list(std::stringstream& request)
     {
         if((filename = fs::path(dir_entry).filename()) != "index")
         {
-            msg.append(filename + "-" + getSubject(userpath + "/" + filename) + "\n");
+            sorted_by_name.insert(filename + "-" + getSubject(userpath + "/" + filename) + "\n");
             ++fileCount;
         }
     }
 
-    return std::to_string(fileCount) + "\n" + msg;
+    msg.append(std::to_string(fileCount) + "\n");
+
+    for (auto &filename : sorted_by_name)
+        msg.append(filename);
+
+    return msg;
 }
 
 std::string Logic::read(std::stringstream& request)

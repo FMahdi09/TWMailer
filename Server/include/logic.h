@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <sstream>
 #include <fstream>
+#include <set>
 
 class Logic
 {
