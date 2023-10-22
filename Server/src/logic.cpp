@@ -31,7 +31,7 @@ std::string Logic::getResponse(std::string request)
         return read(requestStream);
 
     if(method == "DEL")
-        return send(requestStream);
+        return del(requestStream);
 
     if(method == "QUIT")
         return "";
@@ -124,7 +124,30 @@ std::string Logic::read(std::stringstream& request)
        msgNumber == "")
         return "ERR\n";
 
-    return getBody(headDir + "/" + username + "/" + msgNumber);
+    return "OK\n" + getBody(headDir + "/" + username + "/" + msgNumber);
+}
+
+std::string Logic::del(std::stringstream& request)
+{
+    std::string username, msgNumber;
+
+    // read values from request
+    if(!std::getline(request, username) ||
+        !std::getline(request, msgNumber))
+        return "ERR\n";
+
+    // check if values are valid
+    if(username == "" ||
+        msgNumber == "")
+        return "ERR\n";
+
+    // delete file
+    std::string filepath = headDir + "/" + username + "/" + msgNumber;
+
+    if(fs::remove(filepath))
+        return "OK\n";
+
+    return "ERR\n";
 }
 
 void Logic::createNewUser(std::string username)

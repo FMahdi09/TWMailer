@@ -95,7 +95,7 @@ void Server::start()
     // send SIGINT to "all" children
     kill(-lastChild, SIGINT);
 
-    // wait for all children to terminate
+    // wait for all children to finish
     while (wait(nullptr) > 0)
     {
 

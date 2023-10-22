@@ -63,7 +63,7 @@ std::string Connection::recvMsg()
         case -1: // recv error
             throw std::runtime_error("error when sending message");
         case 0: // client shutdown
-            throw std::runtime_error("client shutdown unexpencendly");
+            throw std::runtime_error("client shutdown unexpectedly");
         default:
             bytesRecv += temp;
         }
@@ -88,7 +88,7 @@ std::string Connection::recvMsg()
         case -1: // recv error
             throw std::runtime_error("error when sending message");
         case 0: // client shutdown
-            throw std::runtime_error("client shutdown unexpencendly");
+            throw std::runtime_error("client shutdown unexpectedly");
         default:
             bytesRecv += temp;
         }
