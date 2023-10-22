@@ -10,6 +10,7 @@ CommandCheck::CommandCheck()
 
 std::string CommandCheck::check(std::string command)
 {
+    //call correct function to command given
     if(command == "SEND")
     {
         return messageInput->inputSend();
@@ -32,7 +33,9 @@ std::string CommandCheck::check(std::string command)
     }
     else
     {
+        //if no valid command is entered
         throw std::invalid_argument("no known argument");
     }
+    //if unknown error occure
     throw std::logic_error("unknown error");
 }
