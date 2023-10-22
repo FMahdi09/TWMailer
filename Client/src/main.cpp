@@ -43,18 +43,21 @@ int main(int argc, char* argv[])
     }
     catch (std::invalid_argument const& ex)
     {
+        //if port entered is no valid number
         std::cerr << "<port>:\n"
                   << "expected: number, provided: " << argv[1] << "\n";
         return EXIT_FAILURE;
     }
     catch(std::out_of_range const& ex)
     {
+        //if port entered is no valid number within allowed borders
         std::cerr << "<port>:\n"
                   << "invalid port provided: " << argv[1] << "\n";
         return EXIT_FAILURE;
     }
     catch(std::exception const& ex)
     {
+        //catch of remaining exceptions and print of cause
         std::cerr << ex.what() << "\n";
         return EXIT_FAILURE;
     }
