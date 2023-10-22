@@ -1,9 +1,26 @@
 #include <iostream>
+#include <signal.h>
 
 #include "client.h"
 
+// signal handler
+void signalHandler(int sig)
+{
+    if(sig == SIGPIPE)
+        std::cerr << "server shutdown unexpecedly\n";
+
+    exit(sig);
+}
+
 int main(int argc, char* argv[])
 {
+    // install signal handler
+    if(signal(SIGPIPE, signalHandler) == SIG_ERR)
+    {
+        std::cerr << "signal handler can not be installed\n";
+        return EXIT_FAILURE;
+    }
+
     // check validity of arguments:
 
     // 2 parameters
