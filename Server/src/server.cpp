@@ -135,8 +135,6 @@ void Server::handleClient()
             // get request
             request = connection->recvMsg();
 
-            std::cout << request << std::endl;
-
             if(request == "QUIT")
                 break; // exit loop
 
