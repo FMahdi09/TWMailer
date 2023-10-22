@@ -11,6 +11,7 @@
 *.dylib
 
 # dir
+spoolDir/
 bin/
 .qtc_clangd/
 .vscode/
