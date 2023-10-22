@@ -19,6 +19,8 @@ public:
 private:
     // private methods
     std::string send(std::stringstream& request);
+    std::string list(std::stringstream& request);
+
     void createNewUser(std::string username);
     void createNewMessage(std::string username, std::string subject, std::string msg);
 

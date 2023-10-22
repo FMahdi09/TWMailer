@@ -25,7 +25,7 @@ std::string Logic::getResponse(std::string request)
         return send(requestStream);
 
     if(method == "LIST")
-        return send(requestStream);
+        return list(requestStream);
 
     if(method == "READ")
         return send(requestStream);
@@ -50,7 +50,7 @@ std::string Logic::send(std::stringstream& request)
        !std::getline(request, reciever) ||
        !std::getline(request, subject) ||
        !std::getline(request, curLine))
-        return "ERR\n";
+        return "ERR\n";        
 
     // read msg body
     while(curLine != ".")
@@ -70,6 +70,34 @@ std::string Logic::send(std::stringstream& request)
     createNewMessage(reciever, subject, msg);
 
     return "OK\n";
+}
+
+std::string Logic::list(std::stringstream& request)
+{
+    std::string username, userpath, filename, msg;
+    int fileCount = 0;
+
+    // read values from request
+    if(!std::getline(request, username))
+        return "ERR\n";
+
+    userpath = headDir + "/" + username;
+
+    // return "0\n" if user unknown
+    if(!fs::exists(userpath))
+        return "0\n";
+
+    // iterate over user dir and add all messages
+    for(auto const& dir_entry : fs::directory_iterator(userpath))
+    {
+        if((filename = fs::path(dir_entry).filename()) != "index")
+        {
+            msg.append(filename + "\n");
+            ++fileCount;
+        }
+    }
+
+    return std::to_string(fileCount) + "\n" + msg;
 }
 
 void Logic::createNewUser(std::string username)
