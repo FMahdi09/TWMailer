@@ -1,5 +1,5 @@
 # TWMailer
 
 Autoren:
-Artner Patrick
+Artner Patrick,
 Mahdi Fabian
