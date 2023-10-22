@@ -10,11 +10,11 @@ MessageInput::MessageInput()
 
 std::string MessageInput::inputSend()
 {
-    std::string sendText;
+    std::string sendText = "SEND\n";
     std::string line;
     std::string lineText = "<Sender> ";
 
-    sendText = lineText;
+    sendText += lineText;
     std::cout << lineText;
     getline(std::cin, line);
     sendText = sendText + line + "\n";
@@ -26,7 +26,7 @@ std::string MessageInput::inputSend()
     sendText = sendText + line + "\n";
 
     lineText = "<Subject> ";
-    std::cout << lineText << " (max. 80 Characters)";
+    std::cout << lineText << "(max. 80 Characters) ";
     sendText += lineText;
     getline(std::cin, line);
     while(line.length() > 80)
@@ -39,7 +39,7 @@ std::string MessageInput::inputSend()
 
     line = " ";
     lineText = "<message> ";
-    std::cout << lineText << " (a single dot ends the message)";
+    std::cout << lineText << "(a single dot ends the message) ";
     sendText += lineText;
     while(line != ".")
     {
