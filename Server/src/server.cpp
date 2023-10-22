@@ -6,6 +6,8 @@ Server::Server(int port, std::string spoolDir)
     int reuseValue = 1;
     abortRequested = false;
 
+    logic = std::make_shared<Logic>(spoolDir);
+
     // create listeningsocket
     if((listeningSocket = socket(AF_INET, SOCK_STREAM, 0)) == -1)
         throw std::runtime_error("unable to create listening socket");
@@ -96,7 +98,7 @@ void Server::start()
     // wait for all children to terminate
     while (wait(nullptr) > 0)
     {
-        std::cout << "Child stopped\n";
+
     }
 }
 
@@ -133,11 +135,14 @@ void Server::handleClient()
             // get request
             request = connection->recvMsg();
 
-            if(request == "QUIT" || request == "")
+            if(request == "QUIT")
                 break; // exit loop
 
             // get response
-            response = "recv: " + request + "\n";
+            response = logic->getResponse(request);
+
+            if(response == "")
+                break; // exit loop
 
             // send response
             connection->sendMsg(response);
@@ -155,4 +160,6 @@ void Server::handleClient()
         shutdown(clientSocket, SHUT_RDWR);
         close(clientSocket);
     }
+
+    std::cout << "Child stopped\n";
 }
