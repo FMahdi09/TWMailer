@@ -4,8 +4,9 @@
 #include <iostream>
 #include <string>
 #include <exception>
+#include <memory>
 
-#include "connection.h"
+#include "messageInput.h"
 
 class CommandCheck
 {
@@ -14,10 +15,11 @@ class CommandCheck
         CommandCheck();
 
         // public methods
-        void check(std::string command);
+        std::string check(std::string command);
 
     private:
-
+        // private variables
+        std::unique_ptr<MessageInput> messageInput;
 };
 
 #endif // COMMANDCHECK_H

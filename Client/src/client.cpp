@@ -24,23 +24,20 @@ void Client::start()
 
         try
         {
-            commandCheck->check(command);
+            toSend = commandCheck->check(command);
 
+            // send request
+            connection->sendMsg(toSend);
+
+            if(toSend == "QUIT")
+                return;
+
+            // print response
+            std::cout << connection->recvMsg();
         }
-        catch (const char* ex)
+        catch (std::invalid_argument const& ex)
         {
-            std::cerr << ex << "\n";
-            continue;
+            std::cerr << ex.what() << "\n";
         }
-        toSend = command;
-
-        // send request
-        connection->sendMsg(toSend);
-
-        if(toSend == "QUIT")
-            return;
-
-        // print response
-        std::cout << connection->recvMsg();
     }
 }

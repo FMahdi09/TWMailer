@@ -3,16 +3,16 @@
 // ctor
 CommandCheck::CommandCheck()
 {
-
+    messageInput = std::make_unique<MessageInput>();
 }
 
 // public functions
 
-void CommandCheck::check(std::string command)
+std::string CommandCheck::check(std::string command)
 {
     if(command == "SEND")
     {
-        std::cout << "1 " << command << std::endl;
+        return messageInput->inputSend();
     }
     else if (command == "LIST")
     {
@@ -32,6 +32,7 @@ void CommandCheck::check(std::string command)
     }
     else
     {
-        throw "no known argument";
+        throw std::invalid_argument("no known argument");
     }
+    return "?";
 }
