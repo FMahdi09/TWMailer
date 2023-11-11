@@ -44,7 +44,7 @@ void Client::start()
             // print response
             std::string response = connection->recvMsg();
             std::cout << response;
-            if(response == "OK")
+            if(response == "OK\n")
             {
                 isLogin = true;
                 break;
