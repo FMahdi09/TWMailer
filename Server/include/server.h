@@ -17,6 +17,7 @@
 
 #include "connection.h"
 #include "logic.h"
+#include "ldapmanager.h"
 
 class Server
 {

@@ -8,6 +8,8 @@
 #include <fstream>
 #include <set>
 
+#include "ldapmanager.h"
+
 class Logic
 {
 public:
@@ -19,6 +21,7 @@ public:
 
 private:
     // private methods
+    std::string login(std::stringstream& request);
     std::string send(std::stringstream& request);
     std::string list(std::stringstream& request);
     std::string read(std::stringstream& request);
@@ -30,7 +33,10 @@ private:
     std::string getBody(std::string filepath);
 
     // private variables
+    int loginTries;
+    std::string curUsername;
     std::string headDir;
+    std::unique_ptr<LDAPManager> ldapManager;
 };
 
 #endif // LOGIC_H

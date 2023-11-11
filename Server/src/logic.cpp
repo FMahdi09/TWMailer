@@ -5,6 +5,10 @@ namespace fs = std::filesystem;
 Logic::Logic(std::string mailDir)
 {    
     headDir = mailDir;
+    curUsername = "";
+    loginTries = 0;
+
+    ldapManager = std::make_unique<LDAPManager>();
 }
 
 // public methods
@@ -16,6 +20,9 @@ std::string Logic::getResponse(std::string request)
 
     std::string method;
     getline(requestStream, method);
+
+    if(method == "LOGIN")
+        return login(requestStream);
 
     if(method == "SEND")
         return send(requestStream);
@@ -34,20 +41,46 @@ std::string Logic::getResponse(std::string request)
 
 // private methods
 
-std::string Logic::send(std::stringstream& request)
+std::string Logic::login(std::stringstream& request)
 {
-    std::string curLine, sender, reciever, subject, msg;
+    std::string username, password;
 
     // read values from request
-    if(!std::getline(request, sender) ||
-       !std::getline(request, reciever) ||
+    if(!std::getline(request, username) ||
+       !std::getline(request, password))
+        return "ERR\n";
+
+    // check if values are valid
+    if(username == "" ||
+       password == "")
+        return "ERR\n";
+
+    // authenticate user
+    if(!ldapManager->authenticate(username, password))
+    {
+        ++loginTries;
+        return "ERR\n";
+    }
+
+    curUsername = username;
+    return "OK\n";
+}
+
+std::string Logic::send(std::stringstream& request)
+{
+    if(curUsername == "")
+        return "ERR\n";
+
+    std::string curLine, reciever, subject, msg;
+
+    // read values from request
+    if(!std::getline(request, reciever) ||
        !std::getline(request, subject) ||
        !std::getline(request, curLine))
         return "ERR\n";
 
     // check if values are valid
-    if(sender == "" ||
-       reciever == "" ||
+    if(reciever == "" ||
        subject == "")
         return "ERR\n";
 
@@ -73,19 +106,14 @@ std::string Logic::send(std::stringstream& request)
 
 std::string Logic::list(std::stringstream& request)
 {
-    std::string username, userpath, filename, msg;
+    if(curUsername == "")
+        return "ERR\n";
+
+    std::string userpath, filename, msg;
     std::set<std::string> sorted_by_name;
     int fileCount = 0;
 
-    // read values from request
-    if(!std::getline(request, username))
-        return "ERR\n";
-
-    // check if values are valid
-    if(username == "")
-        return "ERR\n";
-
-    userpath = headDir + "/" + username;
+    userpath = headDir + "/" + curUsername;
 
     // return "0\n" if user unknown
     if(!fs::exists(userpath))
@@ -111,19 +139,20 @@ std::string Logic::list(std::stringstream& request)
 
 std::string Logic::read(std::stringstream& request)
 {
-    std::string username, msgNumber;
+    if(curUsername == "")
+        return "ERR\n";
+
+    std::string msgNumber;
 
     // read values from request
-    if(!std::getline(request, username) ||
-       !std::getline(request, msgNumber))
+    if(!std::getline(request, msgNumber))
         return "ERR\n";
 
     // check if values are valid
-    if(username == "" ||
-       msgNumber == "")
+    if(msgNumber == "")
         return "ERR\n";
 
-    std::string response = getBody(headDir + "/" + username + "/" + msgNumber);
+    std::string response = getBody(headDir + "/" + curUsername + "/" + msgNumber);
 
     if(response == "ERR\n")
         return response;
@@ -133,20 +162,21 @@ std::string Logic::read(std::stringstream& request)
 
 std::string Logic::del(std::stringstream& request)
 {
-    std::string username, msgNumber;
+    if(curUsername == "")
+        return "ERR\n";
+
+    std::string msgNumber;
 
     // read values from request
-    if(!std::getline(request, username) ||
-        !std::getline(request, msgNumber))
+    if(!std::getline(request, msgNumber))
         return "ERR\n";
 
     // check if values are valid
-    if(username == "" ||
-        msgNumber == "")
+    if(msgNumber == "")
         return "ERR\n";
 
     // delete file
-    std::string filepath = headDir + "/" + username + "/" + msgNumber;
+    std::string filepath = headDir + "/" + curUsername + "/" + msgNumber;
 
     if(fs::remove(filepath))
         return "OK\n";
