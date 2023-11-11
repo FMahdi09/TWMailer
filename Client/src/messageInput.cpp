@@ -15,12 +15,6 @@ std::string MessageInput::inputSend()
     std::string line;
     std::string lineText; //Text to print as help for user what to enter
     
-    /*lineText = "<Sender> ";
-    std::cout << lineText;
-    getline(std::cin, line);            //get line of entered characters from cin and write in variable 'line'
-    sendText = sendText + line + "\n";  //assemble text, which later is sent
-    sendText = sendText + this->username + "\n";*/
-    
     lineText = "<Receiver> ";           //set Helptext to current input expected
     std::cout << lineText;
     getline(std::cin, line);
@@ -51,14 +45,6 @@ std::string MessageInput::inputSend()
 std::string MessageInput::inputList()
 {
     std::string sendText = "LIST\n";
-    /*std::string line;
-    std::string lineText;
-
-    lineText = "<Username> ";
-    std::cout << lineText;
-    getline(std::cin, line);
-    sendText = sendText + line + "\n";
-    sendText = sendText + this->username + "\n";*/
     return sendText;                    //assembled message will be returned
 }
 
@@ -67,12 +53,6 @@ std::string MessageInput::inputRead()
     std::string sendText = "READ\n";
     std::string line;
     std::string lineText;
-
-    /*lineText = "<Username> ";
-    std::cout << lineText;
-    getline(std::cin, line);
-    sendText = sendText + line + "\n";
-    sendText = sendText + this->username + "\n";*/
 
     lineText = "<Message-Number> ";
     std::cout << lineText;
@@ -99,12 +79,6 @@ std::string MessageInput::inputDel()
     std::string sendText = "DEL\n";
     std::string line;
     std::string lineText;
-
-    /*lineText = "<Username> ";
-    std::cout << lineText;
-    getline(std::cin, line);
-    sendText = sendText + line + "\n";
-    sendText = sendText + this->username + "\n";*/
 
     lineText = "<Message-Number> ";
     std::cout << lineText;
