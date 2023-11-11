@@ -3,16 +3,19 @@
 // ctor
 Server::Server(int port, std::string spoolDir)
 {
-    int reuseValue = 1;
-    abortRequested = false;
+    // create spoolDir if not exists
+    mailDirectory = spoolDir;
 
-    logic = std::make_shared<Logic>(spoolDir);
+    if(!std::filesystem::exists(mailDirectory))
+        std::filesystem::create_directory(mailDirectory);
 
     // create listeningsocket
     if((listeningSocket = socket(AF_INET, SOCK_STREAM, 0)) == -1)
         throw std::runtime_error("unable to create listening socket");
 
     // set socket options
+    int reuseValue = 1;
+
     if (setsockopt(listeningSocket, SOL_SOCKET, SO_REUSEADDR, &reuseValue, sizeof(reuseValue)) == -1)
         throw std::runtime_error("unable to set socket options: reuseAddr");
 
@@ -38,97 +41,56 @@ Server::Server(int port, std::string spoolDir)
 
 void Server::start()
 {
+    // hint for client information
     struct sockaddr_in clientAddr;
     socklen_t addrlen = sizeof(struct sockaddr_in);
+    int clientSocket;
 
     // main loop
-    while(!abortRequested)
+    bool listening = true;
+
+    while(listening)
     {
         try
         {
             // accept incoming connection
-            if((clientSocket = accept(listeningSocket, (sockaddr*)&clientAddr, &addrlen)) == -1)
-            {
-                if(abortRequested)
-                    throw std::runtime_error("accept failed after aborting");
-
+            if((clientSocket = accept(listeningSocket, (sockaddr*)&clientAddr, &addrlen)) == -1)            
                 throw std::runtime_error("failed to accept new connection");
-            }
+
 
             // print information about the client
             std::cout << "Client connected from "
                       << inet_ntoa(clientAddr.sin_addr) << ":"
                       << ntohs(clientAddr.sin_port) << "\n";
 
-
-            // create child process to handle connection
-            pid_t pid = fork();
-            lastChild = pid;
-
-            switch(pid)
-            {
-            case -1: // error
-                throw std::runtime_error("failed to create child process");
-            case 0: // child
-                std::cout << "Child started\n";
-                listeningSocket = -1;
-                handleClient();
-                return;
-            }
+            // start new thread to handle client
+            std::thread clientHandler = std::thread(&Server::handleClient, this, clientSocket);
+            clientHandler.detach();
         }
         catch(std::runtime_error const& ex)
         {
             std::cerr << ex.what() << std::endl;
-            break;
+            listening = false;
         }
     }
 
     // cleanup:
 
     // close listening socket
-    if(listeningSocket != -1)
-    {
-        shutdown(listeningSocket, SHUT_RDWR);
-        close(listeningSocket);
-    }
-
-    // send SIGINT to "all" children
-    kill(-lastChild, SIGINT);
-
-    // wait for all children to finish
-    while (wait(nullptr) > 0)
-    {
-
-    }
-}
-
-void Server::abort()
-{   
-    if(listeningSocket != -1)
-    {
-        shutdown(listeningSocket, SHUT_RDWR);
-        close(listeningSocket);
-        listeningSocket = -1;
-    }
-
-    if(clientSocket != -1)
-    {
-        shutdown(clientSocket, SHUT_RDWR);
-        close(clientSocket);
-        clientSocket = -1;
-    }
-
-    abortRequested = true;
+    shutdown(listeningSocket, SHUT_RDWR);
+    close(listeningSocket);
 }
 
 // private methods
 
-void Server::handleClient()
+void Server::handleClient(int clientSocket)
 {
     std::string request, response;
     auto connection = std::make_unique<Connection>(clientSocket);
+    auto logic = std::make_unique<Logic>(mailDirectory);
 
-    while(!abortRequested)
+    // main loop
+    while(true)
     {
         try
         {
@@ -141,25 +103,19 @@ void Server::handleClient()
             // get response
             response = logic->getResponse(request);
 
-            if(response == "")
-                break; // exit loop
-
             // send response
             connection->sendMsg(response);
         }
         catch(std::runtime_error const& ex)
-        {
-            if(!abortRequested)
-                std::cerr << ex.what() << std::endl;
+        {            
+            std::cerr << ex.what() << std::endl;
             break;
         }
-    }    
-
-    if(clientSocket != -1)
-    {
-        shutdown(clientSocket, SHUT_RDWR);
-        close(clientSocket);
     }
 
-    std::cout << "Child stopped\n";
+    // cleanup:
+
+    // close client socket
+    shutdown(clientSocket, SHUT_RDWR);
+    close(clientSocket);
 }

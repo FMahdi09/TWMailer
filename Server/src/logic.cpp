@@ -2,13 +2,9 @@
 
 namespace fs = std::filesystem;
 
-Logic::Logic(std::string spoolDir)
-{
-    // create spoolDir if not exists
-    if(!fs::exists(spoolDir))
-        fs::create_directory(spoolDir);
-
-    headDir = spoolDir;
+Logic::Logic(std::string mailDir)
+{    
+    headDir = mailDir;
 }
 
 // public methods
@@ -32,9 +28,6 @@ std::string Logic::getResponse(std::string request)
 
     if(method == "DEL")
         return del(requestStream);
-
-    if(method == "QUIT")
-        return "";
 
     return "ERR: unknown method\n";
 }
@@ -163,11 +156,12 @@ std::string Logic::del(std::stringstream& request)
 
 void Logic::createNewUser(std::string username)
 {
-    fs::create_directory(headDir + "/" + username);
-
-    std::ofstream indexFile(headDir + "/" + username + "/index");
-    indexFile << "1";
-    indexFile.close();
+    if(fs::create_directory(headDir + "/" + username))
+    {
+        std::ofstream indexFile(headDir + "/" + username + "/index");
+        indexFile << "1";
+        indexFile.close();
+    }
 }
 
 void Logic::createNewMessage(std::string username, std::string subject, std::string msg)

@@ -6,6 +6,7 @@
 #include <exception>
 #include <memory>
 #include <thread>
+#include <vector>
 
 #include <unistd.h>
 #include <sys/socket.h>
@@ -29,15 +30,11 @@ public:
 
 private:
     // private methods
-    void handleClient();
+    void handleClient(int clientSocket);
 
     // private variables
-    std::shared_ptr<Logic> logic;
-
     int listeningSocket;
-    int clientSocket;
-    pid_t lastChild;
-    bool abortRequested;
+    std::string mailDirectory;
 };
 
 #endif // SERVER_H
