@@ -139,6 +139,7 @@ std::string MessageInput::inputLogin(std::string& username)
     lineText = "<Password> ";
     std::cout << lineText;
     getline(std::cin, line);
+    sendText = sendText + line + "\n";
 
     return sendText;                    //assembled message will be returned
 }

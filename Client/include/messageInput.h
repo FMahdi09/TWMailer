@@ -5,6 +5,7 @@
 #include <string>
 #include <exception>
 
+
 class MessageInput
 {
     public:
