@@ -14,10 +14,68 @@ void Client::start()
 {
     std::string toSend;
     std::string command;
+    bool isLogin = false;
+
+    while(true)
+    {
+        //Possible Commands message
+        std::cout << "\nPossible Commands: \nLOGIN\nQUIT\n" << std::endl;
+
+        // get request
+        getline(std::cin, command);
+
+        try
+        {
+            std::string username;
+            username = "test";
+
+            //function call to check entered command
+            //return input to send for entered command
+            toSend = commandCheck->checkLogin(command, username);
+
+            // send request with message or text
+            connection->sendMsg(toSend);
+
+            if(toSend == "QUIT")
+            {
+                return;
+            }
+
+            // print response
+            std::string response = connection->recvMsg();
+            std::cout << response;
+            response = "OK";
+            if(response == "OK")
+            {
+                isLogin = true;
+                break;
+            }
+        }
+        catch(std::exception const& ex)
+        {
+            //catch for invalid command entered
+            //catch if unexpected error orruced during message input
+            std::cerr << ex.what() << "\n";
+        }
+    }
+
+    if(isLogin)
+    {
+        mainloop();
+    }
+}
+
+void Client::mainloop()
+{
+    std::string toSend;
+    std::string command;
 
     // main loop
     while(true)
     {
+        //Possible Commands message
+        std::cout << "\nPossible Commands: \nSEND\nLIST\nREAD\nDEL\nQUIT\n" << std::endl;
+
         // get request
         getline(std::cin, command);
 
@@ -26,24 +84,22 @@ void Client::start()
         {
             //function call to check entered command
             //return input to send for entered command
-            toSend = commandCheck->check(command);
+            toSend = commandCheck->checkMainloop(command);
 
             // send request with message or text
             connection->sendMsg(toSend);
 
             if(toSend == "QUIT")
+            {
                 return;
+            }
 
             // print response
             std::cout << connection->recvMsg();
         }
-        catch (std::invalid_argument const& ex)
-        {
-            //catch for invalid command entered
-            std::cerr << ex.what() << "\n";
-        }
         catch(std::exception const& ex)
         {
+            //catch for invalid command entered
             //catch if unexpected error orruced during message input
             std::cerr << ex.what() << "\n";
         }

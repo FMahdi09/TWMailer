@@ -15,7 +15,8 @@ class CommandCheck
         CommandCheck();
 
         // public methods
-        std::string check(std::string command);
+        std::string checkMainloop(std::string command);
+        std::string checkLogin(std::string command, std::string& username);
 
     private:
         // private variables

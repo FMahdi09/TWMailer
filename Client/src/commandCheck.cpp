@@ -8,7 +8,7 @@ CommandCheck::CommandCheck()
 
 // public functions
 
-std::string CommandCheck::check(std::string command)
+std::string CommandCheck::checkMainloop(std::string command)
 {
     //call correct function to command given
     if(command == "SEND")
@@ -26,6 +26,26 @@ std::string CommandCheck::check(std::string command)
     else if (command == "DEL")
     {
         return messageInput->inputDel();
+    }
+    else if (command == "QUIT")
+    {
+        return command;
+    }
+    else
+    {
+        //if no valid command is entered
+        throw std::invalid_argument("no known argument");
+    }
+    //if unknown error occure
+    throw std::logic_error("unknown error");
+}
+
+std::string CommandCheck::checkLogin(std::string command, std::string& username)
+{
+    //call correct function to command given
+    if(command == "LOGIN")
+    {
+        return messageInput->inputLogin(username);
     }
     else if (command == "QUIT")
     {

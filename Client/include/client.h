@@ -15,11 +15,13 @@ public:
 
     // public methods
     void start();
+    void mainloop();
 
 private:
     // private variables
     std::unique_ptr<Connection> connection;
     std::unique_ptr<CommandCheck> commandCheck;
+    
 };
 
 #endif // CLIENT_H

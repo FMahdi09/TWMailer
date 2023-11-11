@@ -16,9 +16,10 @@ class MessageInput
         std::string inputList();
         std::string inputRead();
         std::string inputDel();
+        std::string inputLogin(std::string& username);
 
     private:
-
+        std::string username;
 };
 
 #endif // MESSAGEINPUT_H
