@@ -19,7 +19,6 @@ class MessageInput
         std::string inputLogin(std::string& username);
 
     private:
-        std::string username;
 };
 
 #endif // MESSAGEINPUT_H

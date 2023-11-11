@@ -15,11 +15,11 @@ std::string MessageInput::inputSend()
     std::string line;
     std::string lineText; //Text to print as help for user what to enter
     
-    lineText = "<Sender> ";
-    /*std::cout << lineText;
+    /*lineText = "<Sender> ";
+    std::cout << lineText;
     getline(std::cin, line);            //get line of entered characters from cin and write in variable 'line'
-    sendText = sendText + line + "\n";  //assemble text, which later is sent*/
-    sendText = sendText + this->username + "\n";
+    sendText = sendText + line + "\n";  //assemble text, which later is sent
+    sendText = sendText + this->username + "\n";*/
     
     lineText = "<Receiver> ";           //set Helptext to current input expected
     std::cout << lineText;
@@ -51,14 +51,14 @@ std::string MessageInput::inputSend()
 std::string MessageInput::inputList()
 {
     std::string sendText = "LIST\n";
-    std::string line;
+    /*std::string line;
     std::string lineText;
 
     lineText = "<Username> ";
-    /*std::cout << lineText;
+    std::cout << lineText;
     getline(std::cin, line);
-    sendText = sendText + line + "\n";*/
-    sendText = sendText + this->username + "\n";
+    sendText = sendText + line + "\n";
+    sendText = sendText + this->username + "\n";*/
     return sendText;                    //assembled message will be returned
 }
 
@@ -68,11 +68,11 @@ std::string MessageInput::inputRead()
     std::string line;
     std::string lineText;
 
-    lineText = "<Username> ";
-    /*std::cout << lineText;
+    /*lineText = "<Username> ";
+    std::cout << lineText;
     getline(std::cin, line);
-    sendText = sendText + line + "\n";*/
-    sendText = sendText + this->username + "\n";
+    sendText = sendText + line + "\n";
+    sendText = sendText + this->username + "\n";*/
 
     lineText = "<Message-Number> ";
     std::cout << lineText;
@@ -100,11 +100,11 @@ std::string MessageInput::inputDel()
     std::string line;
     std::string lineText;
 
-    lineText = "<Username> ";
-    /*std::cout << lineText;
+    /*lineText = "<Username> ";
+    std::cout << lineText;
     getline(std::cin, line);
-    sendText = sendText + line + "\n";*/
-    sendText = sendText + this->username + "\n";
+    sendText = sendText + line + "\n";
+    sendText = sendText + this->username + "\n";*/
 
     lineText = "<Message-Number> ";
     std::cout << lineText;
@@ -135,7 +135,6 @@ std::string MessageInput::inputLogin(std::string& username)
     std::cout << lineText;
     getline(std::cin, line);
     sendText = sendText + line + "\n";
-    this->username = line;
 
     lineText = "<Password> ";
     std::cout << lineText;
