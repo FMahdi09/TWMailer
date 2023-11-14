@@ -6,6 +6,7 @@
 
 #include "connection.h"
 #include "commandCheck.h"
+#include "cipher.h"
 
 class Client
 {
@@ -21,7 +22,7 @@ private:
     // private variables
     std::unique_ptr<Connection> connection;
     std::unique_ptr<CommandCheck> commandCheck;
-    
+    std::unique_ptr<Cipher> cipher;
 };
 
 #endif // CLIENT_H

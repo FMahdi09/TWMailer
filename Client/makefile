@@ -6,6 +6,7 @@ INC_DIR = include
 
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall -Werror -g -I $(INC_DIR)
+LIBS = -lcrypto
 
 EXE = $(BIN_DIR)/twmailer-client
 SOURCES = $(wildcard $(SRC_DIR)/*.cpp)
@@ -16,7 +17,7 @@ all: $(EXE)
 rebuild: clean $(EXE)
 
 $(EXE): $(OBJECTS) | $(BIN_DIR)
-	$(CXX) -o $@ $^
+	$(CXX) -o $@ $^ ${LIBS}
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
