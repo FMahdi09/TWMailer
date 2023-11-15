@@ -3,6 +3,16 @@
 // ctor
 Connection::Connection(int port, std::string ipAddr)
 {
+    // init cipher
+    cipher = std::make_unique<Cipher>();
+
+    if(!cipher->readKeyFromFile())
+    {
+        cipher->generateKeyPair();
+    }
+
+    AESready = false;
+
     // create socket
     if((sock = socket(AF_INET, SOCK_STREAM, 0)) == -1)
         throw std::runtime_error("unable to create socket");
@@ -35,6 +45,11 @@ Connection::~Connection()
 //send handed over message to server
 void Connection::sendMsg(std::string toSend)
 {
+    if(AESready)
+    {
+        toSend = cipher->AESencrypt(toSend);
+    }
+
     int temp, bytesSent = 0;
     int msgSize = toSend.size();
 
@@ -120,15 +135,50 @@ std::string Connection::recvMsg()
         }
     }
 
-    msgBuffer[msgSize] = '\0';
+    std::string toReturn = std::string(msgBuffer, msgSize);
 
-    return msgBuffer;
+    if(AESready)
+    {
+        toReturn = cipher->AESdecrypt(toReturn);
+    }
+
+    return toReturn;
+}
+// crypto
+
+void Connection::sendPublicKey()
+{
+    // get public key
+    std::string publicKey = cipher->getPublicKey();
+
+    // send public key
+    sendMsg(publicKey);
 }
 
+void Connection::recvPublicKey()
+{
+    // recv public key
+    std::string publicKey = recvMsg();
 
+    // set public key
+    cipher->readOtherPublicKey(publicKey);
+}
 
+void Connection::AESinit()
+{
+    // recv encrypted passphrase and salt from server
+    std::string encryptedPassphrase = recvMsg();
+    std::string encryptedSalt = recvMsg();
 
+    // decrypt passphrase and salt
+    std::string passphrase = cipher->RSAdecrypt(encryptedPassphrase);
+    std::string salt = cipher->RSAdecrypt(encryptedSalt);
 
+    // AES init
+    cipher->AESinit(passphrase, salt);
+
+    AESready = true;
+}
 
 
 

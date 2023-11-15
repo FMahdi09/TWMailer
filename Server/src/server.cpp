@@ -89,6 +89,17 @@ void Server::handleClient(int clientSocket)
     auto connection = std::make_unique<Connection>(clientSocket);
     auto logic = std::make_unique<Logic>(mailDirectory);
 
+    // crypto handshake
+
+    // send public key to client
+    connection->sendPublicKey();
+
+    // recv public key from client
+    connection->recvPublicKey();
+
+    // generate and send symmetrical key to client
+    connection->AESinit();
+
     // main loop
     while(true)
     {

@@ -4,6 +4,16 @@
 Connection::Connection(int socket)
 {
     sock = socket;
+
+    // init cipher
+    cipher = std::make_unique<Cipher>();
+
+    if(!cipher->readKeyFromFile())
+    {
+        cipher->generateKeyPair();
+    }
+
+    AESready = false;
 }
 
 // public functions
@@ -11,6 +21,11 @@ Connection::Connection(int socket)
 //send handed over message to client
 void Connection::sendMsg(std::string toSend)
 {
+    if(AESready)
+    {
+        toSend = cipher->AESencrypt(toSend);
+    }
+
     int temp, bytesSent = 0;
     int msgSize = toSend.size();
 
@@ -98,5 +113,67 @@ std::string Connection::recvMsg()
 
     msgBuffer[msgSize] = '\0';
 
-    return msgBuffer;
+    std::string toReturn = std::string(msgBuffer, msgSize);
+
+    if(AESready)
+    {
+        toReturn = cipher->AESdecrypt(toReturn);
+    }
+
+    return toReturn;
 }
+
+// crypto
+
+void Connection::sendPublicKey()
+{
+    // get public key
+    std::string publicKey = cipher->getPublicKey();
+
+    // send public key
+    sendMsg(publicKey);
+}
+
+void Connection::recvPublicKey()
+{
+    // recv public key
+    std::string publicKey = recvMsg();
+
+    // set public key
+    cipher->readOtherPublicKey(publicKey);
+}
+
+void Connection::AESinit()
+{
+    // create passphrase and salt
+    std::string passphrase = cipher->generateRandomString(50);
+    std::string salt = cipher->generateRandomString(20);
+
+    // encrypt with RSA
+    std::string encryptedPassphrase = cipher->RSAencrypt(passphrase);
+    std::string encryptedSalt = cipher->RSAencrypt(salt);
+
+    // AESinit
+    cipher->AESinit(passphrase, salt);
+
+    // send encrypted msgs to client
+    sendMsg(encryptedPassphrase);
+    sendMsg(encryptedSalt);
+
+    AESready = true;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -6,7 +6,7 @@ INC_DIR = include
 
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall -Werror -g -I $(INC_DIR)
-LIBS = -lldap -llber
+LIBS = -lldap -llber -lcrypto
 
 EXE = $(BIN_DIR)/twmailer-server
 SOURCES = $(wildcard $(SRC_DIR)/*.cpp)

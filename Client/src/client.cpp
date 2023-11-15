@@ -3,36 +3,6 @@
 // ctor
 Client::Client(int port, std::string ipAddr)
 {
-    // init cipher
-    cipher = std::make_unique<Cipher>();
-
-    if(!cipher->readKeyFromFile())
-    {
-        cipher->generateKeyPair();
-    }
-
-    // RSA test
-
-    std::string toEncrypt = "Hallo das ist ein Test";
-
-    std::string encrypted = cipher->RSAencrypt(toEncrypt);
-
-    std::string decrypted = cipher->RSAdecrypt(encrypted);
-
-    // AES test
-
-    std::string passphrase = "skajdancjaskdjadasd";
-    std::string salt = "jsd8q2893zda";
-
-    cipher->AESinit(passphrase, salt);
-
-    std::string aesToEncrypt = "Das ist noch ein Test";
-
-    std::string aesEncrypted = cipher->AESencrypt(aesToEncrypt);
-
-    std::string aesDecrypted = cipher->AESdecrypt(aesEncrypted);
-
-
     // init connection
     connection = std::make_unique<Connection>(port, ipAddr);
     commandCheck = std::make_unique<CommandCheck>();
@@ -45,6 +15,17 @@ void Client::start()
     std::string toSend;
     std::string command;
     bool isLogin = false;
+
+    // crypto handshake
+
+    // send public key to client
+    connection->sendPublicKey();
+
+    // recv public key from client
+    connection->recvPublicKey();
+
+    // AES init
+    connection->AESinit();
 
     while(true)
     {
@@ -61,7 +42,7 @@ void Client::start()
 
             //function call to check entered command
             //return input to send for entered command
-            toSend = commandCheck->checkLogin(command, username);
+            toSend = commandCheck->checkLogin(command, username);                                    
 
             // send request with message or text
             connection->sendMsg(toSend);

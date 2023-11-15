@@ -11,6 +11,8 @@
 #include <string>
 #include <exception>
 
+#include "cipher.h"
+
 class Connection
 {
 public:
@@ -24,12 +26,19 @@ public:
     void sendMsg(std::string toSend);
     std::string recvMsg();
 
+    // crypto
+    void sendPublicKey();
+    void recvPublicKey();
+    void AESinit();
+
     // public variables
     const static int headerSize = 4;
 
 private:
     //private variables
+    bool AESready;
     int sock;
+    std::unique_ptr<Cipher> cipher;
 };
 
 #endif // CONNECTION_H
