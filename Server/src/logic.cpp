@@ -59,7 +59,9 @@ std::string Logic::login(std::stringstream& request)
     // authenticate user
     if(!ldapManager->authenticate(username, password))
     {
-        ++loginTries;
+        if(++loginTries == 3)
+            throw std::invalid_argument("BLACKLISTED\nFailed 3 logins in a row\n");
+
         return "ERR\n";
     }
 

@@ -27,6 +27,13 @@ void Client::start()
     // AES init
     connection->AESinit();
 
+    std::string welcomeMsg = connection->recvMsg();
+
+    std::cout << welcomeMsg;
+
+    if(welcomeMsg != "Welcome to the Server\n")
+        return;
+
     while(true)
     {
         //Possible Commands message
@@ -58,6 +65,10 @@ void Client::start()
             if(response == "OK\n")
             {
                 isLogin = true;
+                break;
+            }
+            else if(response == "BLACKLISTED\nFailed 3 logins in a row\n")
+            {
                 break;
             }
         }

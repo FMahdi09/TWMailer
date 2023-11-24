@@ -9,6 +9,7 @@
 #include <vector>
 #include <mutex>
 #include <map>
+#include <chrono>
 
 #include <unistd.h>
 #include <sys/socket.h>
@@ -33,12 +34,16 @@ public:
 
 private:
     // private methods
-    void handleClient(int clientSocket);
+    void handleClient(int clientSocket, std::string ipAddress);
+    int checkAccessRights(std::string ipAddress);
 
     // private variables
     int listeningSocket;
     std::string mailDirectory;
     std::map<std::string, std::mutex> indexLocks;
+
+    std::mutex blacklistMutex;
+    std::map<std::string, std::chrono::time_point<std::chrono::system_clock>> blacklist;
 };
 
 #endif // SERVER_H
