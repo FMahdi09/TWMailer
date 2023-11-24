@@ -5,6 +5,8 @@
 #include <string>
 #include <exception>
 
+#include <unistd.h>
+#include <termios.h>
 
 class MessageInput
 {
@@ -20,6 +22,9 @@ class MessageInput
         std::string inputLogin(std::string& username);
 
     private:
+        // private methods
+        std::string readPassword();
+        int getch();
 };
 
 #endif // MESSAGEINPUT_H
