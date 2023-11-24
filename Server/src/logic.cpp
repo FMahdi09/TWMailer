@@ -2,13 +2,14 @@
 
 namespace fs = std::filesystem;
 
-Logic::Logic(std::string mailDir)
+Logic::Logic(std::string mailDir, std::map<std::string, std::mutex> &indexLocks)
 {    
     headDir = mailDir;
     curUsername = "";
     loginTries = 0;
 
     ldapManager = std::make_unique<LDAPManager>();
+    this->indexLocks = &indexLocks;
 }
 
 // public methods
@@ -189,6 +190,7 @@ void Logic::createNewUser(std::string username)
     if(fs::create_directory(headDir + "/" + username))
     {
         std::ofstream indexFile(headDir + "/" + username + "/index");
+        (*indexLocks)[username];
         indexFile << "1";
         indexFile.close();
     }
@@ -199,6 +201,10 @@ void Logic::createNewMessage(std::string username, std::string subject, std::str
     // get index for new msg
     std::string userpath = headDir + "/" + username;
 
+    // lock access to index file
+    (*indexLocks)[username].lock();
+
+    // get current index
     std::ifstream inIndexFile(userpath + "/index");
     int index;
     inIndexFile >> index;
@@ -208,6 +214,9 @@ void Logic::createNewMessage(std::string username, std::string subject, std::str
     std::ofstream outIndexFile(userpath + "/index");
     outIndexFile << index + 1;
     outIndexFile.close();
+
+    // release index file
+    (*indexLocks)[username].unlock();
 
     // create file
     std::ofstream newMsgFile(userpath + "/" + std::to_string(index));

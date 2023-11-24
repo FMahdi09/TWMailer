@@ -3,11 +3,22 @@
 // ctor
 Server::Server(int port, std::string spoolDir)
 {
-    // create spoolDir if not exists
     mailDirectory = spoolDir;
 
-    if(!std::filesystem::exists(mailDirectory))
+    // check if the directory already exists
+    if(std::filesystem::exists(mailDirectory))
+    {
+        // create a lock for each index file
+        for(auto const& dirEntry : std::filesystem::directory_iterator(mailDirectory))
+        {
+            indexLocks[dirEntry.path().filename()];
+        }
+    }
+    else
+    {
+        // create spoolDir if it does not exist
         std::filesystem::create_directory(mailDirectory);
+    }
 
     // create listeningsocket
     if((listeningSocket = socket(AF_INET, SOCK_STREAM, 0)) == -1)
@@ -20,7 +31,7 @@ Server::Server(int port, std::string spoolDir)
         throw std::runtime_error("unable to set socket options: reuseAddr");
 
     if (setsockopt(listeningSocket,SOL_SOCKET,SO_REUSEPORT, &reuseValue, sizeof(reuseValue)) == -1)
-        throw std::runtime_error("unable to set socket option: reusePort ");
+        throw std::runtime_error("unable to set socket option: reusePort");
 
 
     // bind socket to ip address and port
@@ -87,7 +98,7 @@ void Server::handleClient(int clientSocket)
 {
     std::string request, response;
     auto connection = std::make_unique<Connection>(clientSocket);
-    auto logic = std::make_unique<Logic>(mailDirectory);
+    auto logic = std::make_unique<Logic>(mailDirectory, indexLocks);
 
     // crypto handshake
 

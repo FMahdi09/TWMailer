@@ -7,6 +7,8 @@
 #include <sstream>
 #include <fstream>
 #include <set>
+#include <map>
+#include <mutex>
 
 #include "ldapmanager.h"
 
@@ -14,7 +16,7 @@ class Logic
 {
 public:
     //ctor
-    Logic(std::string spoolDir);
+    Logic(std::string spoolDir, std::map<std::string, std::mutex> &indexLocks);
 
     // public methods
     std::string getResponse(std::string request);
@@ -36,6 +38,7 @@ private:
     int loginTries;
     std::string curUsername;
     std::string headDir;
+    std::map<std::string, std::mutex>* indexLocks;
     std::unique_ptr<LDAPManager> ldapManager;
 };
 

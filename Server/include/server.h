@@ -7,6 +7,8 @@
 #include <memory>
 #include <thread>
 #include <vector>
+#include <mutex>
+#include <map>
 
 #include <unistd.h>
 #include <sys/socket.h>
@@ -36,6 +38,7 @@ private:
     // private variables
     int listeningSocket;
     std::string mailDirectory;
+    std::map<std::string, std::mutex> indexLocks;
 };
 
 #endif // SERVER_H
