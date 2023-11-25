@@ -129,8 +129,6 @@ std::string MessageInput::readPassword()
     unsigned char ch = 0;
     std::string password;
 
-    printf("Password: ");
-
     while ((ch = getch()) != RETURN)
     {
         if (ch == BACKSPACE)
