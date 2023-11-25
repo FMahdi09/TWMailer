@@ -125,7 +125,6 @@ void Server::handleClient(int clientSocket, std::string ipAddress)
 
     connection->sendMsg("Welcome to the Server\n");
 
-
     // main loop
     while(true)
     {
@@ -133,6 +132,13 @@ void Server::handleClient(int clientSocket, std::string ipAddress)
         {
             // get request
             request = connection->recvMsg();
+
+            // check if client has been blacklisted
+            if((secondsRemaining = checkAccessRights(ipAddress)) != 0)
+            {
+                connection->sendMsg("You are blacklisted!\nTry again in " + std::to_string(secondsRemaining) + " seconds.\n");
+                break;
+            }
 
             if(request == "QUIT")
                 break; // exit loop
