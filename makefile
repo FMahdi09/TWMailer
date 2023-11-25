@@ -8,8 +8,4 @@ clean:
 	cd Server && make clean
 	cd Client && make clean
 
-rebuild:
-	cd Server && make clean
-	cd Client && make clean
-	cd Server && make
-	cd Client && make
+rebuild: clean all
