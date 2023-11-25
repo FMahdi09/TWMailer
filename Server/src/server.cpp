@@ -101,71 +101,69 @@ void Server::handleClient(int clientSocket, std::string ipAddress)
 {
     std::string request, response;
     auto connection = std::make_unique<Connection>(clientSocket);
-    auto logic = std::make_unique<Logic>(mailDirectory, indexLocks);
-
-    // crypto handshake
-
-    // send public key to client
-    connection->sendPublicKey();
-
-    // recv public key from client
-    connection->recvPublicKey();
-
-    // generate and send symmetrical key to client
-    connection->AESinit();
-
-    // check if client is blacklisted
-    int secondsRemaining;
-
-    if((secondsRemaining = checkAccessRights(ipAddress)) != 0)
+    try
     {
-        connection->sendMsg("You are blacklisted!\nTry again in " + std::to_string(secondsRemaining) + " seconds.\n");
-        return;
+        auto logic = std::make_unique<Logic>(mailDirectory, indexLocks);
+
+        // crypto handshake
+
+        // send public key to client
+        connection->sendPublicKey();
+
+        // recv public key from client
+        connection->recvPublicKey();
+
+        // generate and send symmetrical key to client
+        connection->AESinit();
+
+        // check if client is blacklisted
+        int secondsRemaining;
+
+        if((secondsRemaining = checkAccessRights(ipAddress)) != 0)
+        {
+            connection->sendMsg("You are blacklisted!\nTry again in " + std::to_string(secondsRemaining) + " seconds.\n");
+            return;
+        }
+
+        connection->sendMsg("Welcome to the Server\n");
+
+        // main loop
+        while(true)
+        {
+                // get request
+                request = connection->recvMsg();
+
+                // check if client has been blacklisted
+                if((secondsRemaining = checkAccessRights(ipAddress)) != 0)
+                {
+                    connection->sendMsg("You are blacklisted!\nTry again in " + std::to_string(secondsRemaining) + " seconds.\n");
+                    break;
+                }
+
+                if(request == "QUIT")
+                    break; // exit loop
+
+                // get response
+                response = logic->getResponse(request);
+
+                // send response
+                connection->sendMsg(response);
+        }
     }
-
-    connection->sendMsg("Welcome to the Server\n");
-
-    // main loop
-    while(true)
+    catch(std::runtime_error const& ex)
     {
-        try
-        {
-            // get request
-            request = connection->recvMsg();
+        std::cerr << ex.what() << std::endl;
+    }
+    catch(std::invalid_argument const& ex)
+    {
+        // blacklist user
+        blacklistMutex.lock();
 
-            // check if client has been blacklisted
-            if((secondsRemaining = checkAccessRights(ipAddress)) != 0)
-            {
-                connection->sendMsg("You are blacklisted!\nTry again in " + std::to_string(secondsRemaining) + " seconds.\n");
-                break;
-            }
+        blacklist[ipAddress] = std::chrono::system_clock::now() + std::chrono::minutes(1);
 
-            if(request == "QUIT")
-                break; // exit loop
+        blacklistMutex.unlock();
 
-            // get response
-            response = logic->getResponse(request);
-
-            // send response
-            connection->sendMsg(response);
-        }
-        catch(std::runtime_error const& ex)
-        {            
-            std::cerr << ex.what() << std::endl;
-            break;
-        }
-        catch(std::invalid_argument const& ex)
-        {
-            // blacklist user
-            blacklistMutex.lock();
-
-            blacklist[ipAddress] = std::chrono::system_clock::now() + std::chrono::minutes(1);
-
-            blacklistMutex.unlock();
-
-            connection->sendMsg(ex.what());
-            break;
-        }
+        connection->sendMsg(ex.what());
     }
 
     // cleanup:
