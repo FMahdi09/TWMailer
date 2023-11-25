@@ -46,12 +46,14 @@ Server::Server(int port, std::string spoolDir)
     // start listening for connections
     if((listen(listeningSocket, SOMAXCONN)) == -1)
         throw std::runtime_error("failed to listen on listening socket");
+
+    std::cout << "started listening on port: " << port << std::endl;
 }
 
 // public methods
 
 void Server::start()
-{
+{        
     // hint for client information
     struct sockaddr_in clientAddr;
     socklen_t addrlen = sizeof(struct sockaddr_in);
