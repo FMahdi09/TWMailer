@@ -155,13 +155,15 @@ std::string Logic::read(std::stringstream& request)
     if(msgNumber == "")
         return "ERR\n";
 
-    std::string subject = getSubject(headDir + "/" + curUsername + "/" + msgNumber);
-    std::string body = getBody(headDir + "/" + curUsername + "/" + msgNumber);
+    std::string subject = "<Subject>\n";
+    std::string body = "<message>\n";
+    subject += getSubject(headDir + "/" + curUsername + "/" + msgNumber);
+    body += getBody(headDir + "/" + curUsername + "/" + msgNumber);
 
     if(body == "ERR\n" || subject == "ERR\n")
         return "ERR\n";
 
-    return "OK\n" + subject + "\n\n" + body;
+    return "OK\n\n" + subject + "\n\n" + body;
 }
 
 std::string Logic::del(std::stringstream& request)
